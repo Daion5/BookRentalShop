@@ -1,0 +1,78 @@
+﻿@model BookRentalShop.Models.Book
+
+@{
+    ViewData["Title"] = "Details";
+    string borrowErrorMessage = TempData["BorrowErrorMessage"] as string;
+}
+
+<h1>Details</h1>
+
+@if (TempData["BorrowErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["BorrowErrorMessage"]
+    </div>
+}
+
+<div>
+    <h4>Book</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Title
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Title
+        </dd>
+        <dt class="col-sm-2">
+            Author
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Author
+        </dd>
+        <dt class="col-sm-2">
+            Category
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Category.Name
+        </dd>
+        <dt class="col-sm-2">
+            Price
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Price
+        </dd>
+        <dt class="col-sm-2">
+            Year
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Year
+        </dd>
+        <dt class="col-sm-2">
+            Description
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Description
+        </dd>
+        <dt class="col-sm-2">
+            Available Copies
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.AvailableCopies > 0)
+            {
+                @Model.AvailableCopies
+            }
+            else
+            {
+                <span style="color: red;">No books available in stock.</span>
+            }
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a> |
+    @if (Model.AvailableCopies > 0)
+    {
+        <a asp-action="Borrow" asp-route-id="@Model.BookId">Borrow</a>
+    }
+</div>

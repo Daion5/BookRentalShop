@@ -1,0 +1,128 @@
+﻿@model IEnumerable<BookRentalShop.Models.Book>
+
+@{
+    ViewData["Title"] = "Books List";
+    var categories = ViewData["Categories"] as SelectList;
+    string borrowErrorMessage = TempData["BorrowErrorMessage"] as string;
+}
+
+<h1>Books List</h1>
+
+@if (TempData["BorrowErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["BorrowErrorMessage"]
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<form asp-action="Index" method="get">
+    <div class="form-group">
+        <label for="searchString">Search</label>
+        <input type="text" class="form-control" id="searchString" name="searchString" value="@ViewData["SearchString"]" />
+    </div>
+    <div class="form-group">
+        <label for="category">Category</label>
+        @Html.DropDownList("category", categories, "All", new { @class = "form-control" })
+    </div>
+    <div class="form-group">
+        <label for="minPrice">Min Price</label>
+        <input type="number" class="form-control" id="minPrice" name="minPrice" value="@ViewData["MinPrice"]" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+        <label for="maxPrice">Max Price</label>
+        <input type="number" class="form-control" id="maxPrice" name="maxPrice" value="@ViewData["MaxPrice"]" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+        <label>Show Books:</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="showAvailable" id="showAll" value="false" @(ViewData["ShowAvailable"] as bool? == false ? "checked" : "") />
+            <label class="form-check-label" for="showAll">
+                All Books
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="showAvailable" id="showAvailable" value="true" @(ViewData["ShowAvailable"] as bool? == true ? "checked" : "") />
+            <label class="form-check-label" for="showAvailable">
+                Available Books Only
+            </label>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+    @if (User.IsInRole("Admin"))
+    {
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" asp-area="" asp-controller="Books" asp-action="CreateBook">Add New Book</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-area="" asp-controller="Categories" asp-action="Index">Manage Categories</a>
+            </li>
+        </ul>
+    }
+</form>
+
+@if (ViewData["NoBooksMessage"] != null)
+{
+    <p>@ViewData["NoBooksMessage"]</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Category</th>
+                <th>Price</th>
+                @if (User.IsInRole("Admin"))
+                {
+                    <th>Available Copies</th>
+                }
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Author)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Category.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <td>@Html.DisplayFor(modelItem => item.AvailableCopies)</td>
+                    }
+                    <td>
+                        @if (!User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Details" asp-route-id="@item.BookId" class="btn btn-info">Details</a>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="EditBook" asp-route-id="@item.BookId" class="btn btn-warning">Edit</a>
+                            <a asp-action="DeleteBook" asp-route-id="@item.BookId" class="btn btn-danger">Delete</a>
+                        }
+                        else if (item.AvailableCopies > 0)
+                        {
+                            @if (!User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Borrow" asp-route-id="@item.BookId" class="btn btn-primary">Borrow</a>
+                            }
+                        }
+                        else
+                        {
+                            <span style="color: red;">No books available in stock.</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    string successMessage = TempData["SuccessMessage"] as string;
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to BookRentalShop!</h1>
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @successMessage
+        </div>
+    }
+</div>
